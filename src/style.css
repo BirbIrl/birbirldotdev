@@ -1,0 +1,33 @@
+.card {
+	background-color: #00000099;
+	backdrop-filter: blur(5px);
+	width: 33vw;
+	border: 0.125em solid ghostwhite;
+	padding: 2em;
+	border-radius: 1em;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.feather {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	z-index: 0;
+	pointer-events: none;
+}
+
+.overlay {
+	z-index: 1;
+}
+
+body {
+	background-color: #181825;
+	color: antiquewhite;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+}
