@@ -236,7 +236,6 @@ function getFeatherData() {
 		featherQueue.pop(0)
 	}
 	featherQueue.push(target)
-	console.log(featherQueue)
 	featherLastPosThird = (featherLastPosThird + 1) % 3
 	return featherDatas[target]
 }
@@ -285,10 +284,15 @@ drawCanvas = function() {
 	}
 }
 
+var featherSpawnTime
+function setFeatherSpawnTime() {
+	featherSpawnTime = emToPixels(document.body, gravity * ((window.innerHeight / window.innerWidth) + 1)) / 30
+} // i have become god of jank, destroyer of sense
+setFeatherSpawnTime()
 var elapsed
 var onScreenTime = 0
 var lastSpawnTime = 0
-var featherSpawnTime = 13
+console.log(featherSpawnTime)
 function doFrame(ms) {
 	time = ms / 1000
 	if (elapsed == null) {
@@ -349,6 +353,9 @@ document.onmouseout = function() {
 	mouseRegistered = false;
 }
 
+window.onresize = function() {
+	setFeatherSpawnTime()
+}
 
 
 document.body.appendChild(feather)
