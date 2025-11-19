@@ -23,6 +23,7 @@ const defaultLineWidth = emToPixels(document.body, 0.2)
 const startingOpacity = 0.5
 var mousepos = new Vec(0, 0)
 var mouseRegistered = false
+var trackedObjects = []
 
 class Point {
 	constructor(context, pos, radius, lineWidth, color) {
@@ -86,7 +87,7 @@ class Point {
 		ctx.moveTo(this.pos.x, this.pos.y)
 		ctx.lineTo(this.child.pos.x, this.child.pos.y)
 		var integrity = this.getIntegrity() - 1
-		ctx.strokeStyle = addAlpha(this.color, startingOpacity + integrity * 1.5);
+		ctx.strokeStyle = addAlpha(this.color, Math.max(startingOpacity + integrity, 0.1));
 		ctx.stroke();
 		ctx.restore()
 	}
@@ -111,7 +112,6 @@ class Point {
 		this.last = true
 	}
 	draw() {
-
 		this.drawPoint()
 		if (this.child instanceof Point) {
 			this.drawLine()
@@ -125,27 +125,62 @@ class Point {
 	}
 }
 
+function parsePointJson(jsonData, context, startingPos, pointSize, lineWidth, color) {
+	var startingPoint
+	const pointCount = Object.keys(jsonData).length
+	var previousPoint
+	for (const index in jsonData) {
+		var pointPos = new Vec(jsonData[index].x, jsonData[index].y).add(startingPos)
+		newPoint = new Point(context, pointPos, pointSize, lineWidth, color)
+		if (previousPoint == null) {
+			startingPoint = newPoint
+		}
+		else {
+			previousPoint.appendChild(newPoint)
+			if (index == pointCount - 1) {
+				newPoint.end()
+			}
+		}
+		previousPoint = newPoint
+	}
+	trackedObjects.push(startingPoint)
+}
+
+function loadPointJson(jsonPath, context, startingPos, pointSize, lineWidth, color) {
+	fetch(jsonPath)
+		.then(function(response) {
+			return response.json();
+		})
+		.then(function(data) {
+			parsePointJson(data, context, startingPos, pointSize, lineWidth, color)
+		})
+		.catch(function(err) {
+			console.log('error: ' + err);
+		});
+}
+
+
+
 const pointSize = emToPixels(document.body, 0.33)
+
 
 const feather = document.createElement("canvas")
 feather.classList.add("feather")
 var ctx = feather.getContext("2d")
 
-var point1 = new Point(ctx, new Vec(100, 100), pointSize, defaultLineWidth, "#FFFFFF")
-var point2 = point1.newChild(ctx, new Vec(100, 200), pointSize, defaultLineWidth, "#FFFFFF")
-var point3 = point2.newChild(ctx, new Vec(200, 200), pointSize, defaultLineWidth, "#FFFFFF")
-var point4 = point3.newChild(ctx, new Vec(200, 100), pointSize, defaultLineWidth, "#FFFFFF")
 
-point4.end()
-
-
-
+loadPointJson("./assets/square.json", ctx, new Vec(100, 100), pointSize, defaultLineWidth + 1, "#FFFFFF")
+loadPointJson("./assets/octagon.json", ctx, new Vec(500, 100), pointSize, defaultLineWidth + 1, "#FFFFFF")
+loadPointJson("./assets/circle.json", ctx, new Vec(200, 500), pointSize, defaultLineWidth + 1, "#FFFFFF")
 
 
 drawCanvas = function() {
+
 	feather.width = window.innerWidth;
 	feather.height = window.innerHeight;
-	point1.draw()
+	for (const point of trackedObjects) {
+		point.draw()
+	}
 }
 
 var elapsed
@@ -156,9 +191,14 @@ function doFrame(ms) {
 	}
 	dt = time - elapsed
 	dt = Math.min(dt, 1)
+	var dt_display = document.getElementById("dt-display");
+	if (dt_display)
+		dt_display.textContent = "Delte time: " + dt;
 	elapsed = time
 
-	point1.simulate(dt)
+	for (const point of trackedObjects) {
+		point.simulate(dt)
+	}
 	drawCanvas()
 
 	requestAnimationFrame(doFrame)
@@ -167,28 +207,33 @@ function doFrame(ms) {
 requestAnimationFrame(doFrame)
 
 function updateMousePos(event) {
-	console.log(event)
 	mousepos.x = event.clientX ?? event.touches[0].clientX;
 	mousepos.y = event.clientY ?? event.touches[0].clientY;
 	mousepos.x = clamp(0, mousepos.x, feather.width)
 	mousepos.y = clamp(0, mousepos.y, feather.height)
 }
 
-document.onmousemove = function(event) {
+
+document.ontouchstart = function(event) {
+	console.log(mouseRegistered)
 	mouseRegistered = true;
 	updateMousePos(event);
 };
 
-document.ontouchstart = function(event) {
+document.onmouseover = function() {
 	mouseRegistered = true;
-	updateMousePos(event);
-};
+}
 
 document.ontouchmove = function(event) {
 	updateMousePos(event);
 };
 
+document.onmousemove = function(event) {
+	updateMousePos(event);
+};
+
 document.ontouchend = function() {
+	console.log(mouseRegistered)
 	mouseRegistered = false;
 };
 document.onmouseout = function() {
