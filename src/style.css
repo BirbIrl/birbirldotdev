@@ -23,6 +23,12 @@
 	z-index: 1;
 }
 
+.unselectable {
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
 body {
 	background-color: #181825;
 	color: antiquewhite;

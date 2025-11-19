@@ -1,23 +1,36 @@
 /** @type {import('./victor.js')} */ //curse you, lsp's
 const Vec = Victor
-const worldspeed = 2
 
 function emToPixels(element, em) {
 	const elementFontSize = parseFloat(getComputedStyle(element).fontSize);
 	return em * elementFontSize;
 }
 function addAlpha(color, opacity) {
-	// coerce values so it is between 0 and 1.
 	var _opacity = Math.round(Math.min(Math.max(opacity ?? 1, 0), 1) * 255);
-	return color + _opacity.toString(16).toUpperCase();
+	return color + _opacity.toString(16).toUpperCase().padStart(2, '0');
 }
+function lerp(a, b, t) {
+	return a + (b - a) * t;
+}
+function clamp(min, target, max) {
+	return Math.min(Math.max(target, min), max);
+};
+
+const worldspeed = 2
+const mouseStrength = 1
+const mouseRange = emToPixels(document.body, 5)
+const defaultLineWidth = emToPixels(document.body, 0.2)
+const startingOpacity = 0.5
+var mousepos = new Vec(0, 0)
+var mouseRegistered = false
 
 class Point {
-	constructor(context, pos, radius, color) {
+	constructor(context, pos, radius, lineWidth, color) {
 		this.context = context
 		this.pos = pos
 		this.boundPos = pos.clone()
 		this.radius = radius
+		this.lineWidth = lineWidth
 		this.color = color
 		this.strength = 1
 	}
@@ -27,8 +40,8 @@ class Point {
 		node.boundDiffFromParent = node.boundPos.clone().subtract(this.boundPos)
 		return node
 	}
-	newChild(context, pos, radius, color) {
-		var child = new Point(context, pos, radius, color)
+	newChild(context, pos, radius, defaultLineWidth, color) {
+		var child = new Point(context, pos, radius, defaultLineWidth, color)
 		return this.appendChild(child)
 	}
 	getIntegrity() {
@@ -36,21 +49,31 @@ class Point {
 		var currentLength = this.pos.clone().subtract(this.child.pos).length()
 		return (targetLength / currentLength) * this.strength
 	}
+	simulateMousePush(dt) {
+		if (!mouseRegistered) {
+			return false
+		}
+		var effectStrength = (mouseStrength / this.strength) * dt
+		var variation = this.pos.clone().subtract(mousepos)
+		effectStrength = lerp(0, effectStrength, Math.max(mouseRange - variation.length(), 0))
+		var direction = variation.clone().norm()
+		direction.x = direction.x * effectStrength // as a lua developer i refuse to use *=
+		direction.y = direction.y * effectStrength
+		this.pos.add(direction)
+	}
 	simulateJoints(dt) {
-		//console.log(this.pos)
-		//this.pos = this.pos.clone().add(this.boundDiffFromParent.clone().multiply(new Vec(this.getIntegrity(), this.getIntegrity())))
-		//console.log(this.pos)
 		var currDiffFromParent = this.pos.clone().subtract(this.parent.pos)
 		var variation = currDiffFromParent.clone().subtract(this.boundDiffFromParent)
-		variation.x = variation.x * (this.strength * worldspeed * dt / 1000)
-		variation.y = variation.y * (this.strength * worldspeed * dt / 1000)
-		console.log(this.pos)
+		var effectStrength = (this.strength * worldspeed * dt) / 2
+		variation.x = variation.x * effectStrength
+		variation.y = variation.y * effectStrength
 		this.pos = this.pos.subtract(variation)
-		console.log(this.pos)
+		this.parent.pos = this.parent.pos.add(variation)
 	}
 	simulate(dt) {
 		this.simulateJoints(dt)
-		if (this.end) {
+		this.simulateMousePush(dt)
+		if (this.last) {
 			return true
 		}
 		this.child.simulate(dt)
@@ -59,12 +82,11 @@ class Point {
 		var ctx = this.context
 		ctx.save();
 		ctx.beginPath();
-		ctx.lineWidth = 2;
+		ctx.lineWidth = this.lineWidth;
 		ctx.moveTo(this.pos.x, this.pos.y)
 		ctx.lineTo(this.child.pos.x, this.child.pos.y)
-		var strength = this.getIntegrity()
-		console.log(strength)
-		ctx.strokeStyle = addAlpha(this.color, strength);
+		var integrity = this.getIntegrity() - 1
+		ctx.strokeStyle = addAlpha(this.color, startingOpacity + integrity * 1.5);
 		ctx.stroke();
 		ctx.restore()
 	}
@@ -109,10 +131,10 @@ const feather = document.createElement("canvas")
 feather.classList.add("feather")
 var ctx = feather.getContext("2d")
 
-var point1 = new Point(ctx, new Vec(10, 10), pointSize, "#FFFFFF")
-var point2 = point1.newChild(ctx, new Vec(10, 100), pointSize, "#FFFFFF")
-var point3 = point2.newChild(ctx, new Vec(100, 100), pointSize, "#FFFFFF")
-var point4 = point3.newChild(ctx, new Vec(100, 10), pointSize, "#FFFFFF")
+var point1 = new Point(ctx, new Vec(100, 100), pointSize, defaultLineWidth, "#FFFFFF")
+var point2 = point1.newChild(ctx, new Vec(100, 200), pointSize, defaultLineWidth, "#FFFFFF")
+var point3 = point2.newChild(ctx, new Vec(200, 200), pointSize, defaultLineWidth, "#FFFFFF")
+var point4 = point3.newChild(ctx, new Vec(200, 100), pointSize, defaultLineWidth, "#FFFFFF")
 
 point4.end()
 
@@ -127,29 +149,52 @@ drawCanvas = function() {
 }
 
 var elapsed
-function doFrame(time) {
+function doFrame(ms) {
+	time = ms / 1000
 	if (elapsed == null) {
 		elapsed = 0
 	}
 	dt = time - elapsed
+	dt = Math.min(dt, 1)
 	elapsed = time
-	drawCanvas()
 
 	point1.simulate(dt)
-	console.log(dt)
+	drawCanvas()
 
 	requestAnimationFrame(doFrame)
 }
 
 requestAnimationFrame(doFrame)
 
-/*
-window.onresize = drawCanvas;
-*/
-document.onmousemove = function(event) {
-	var mousepos = new Vec(event.x, event.y)
-	point1.pos = mousepos
+function updateMousePos(event) {
+	console.log(event)
+	mousepos.x = event.clientX ?? event.touches[0].clientX;
+	mousepos.y = event.clientY ?? event.touches[0].clientY;
+	mousepos.x = clamp(0, mousepos.x, feather.width)
+	mousepos.y = clamp(0, mousepos.y, feather.height)
 }
+
+document.onmousemove = function(event) {
+	mouseRegistered = true;
+	updateMousePos(event);
+};
+
+document.ontouchstart = function(event) {
+	mouseRegistered = true;
+	updateMousePos(event);
+};
+
+document.ontouchmove = function(event) {
+	updateMousePos(event);
+};
+
+document.ontouchend = function() {
+	mouseRegistered = false;
+};
+document.onmouseout = function() {
+	mouseRegistered = false;
+}
+
 
 
 document.body.appendChild(feather)
