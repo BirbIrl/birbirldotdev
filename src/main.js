@@ -16,7 +16,7 @@ function clamp(min, target, max) {
 	return Math.min(Math.max(target, min), max);
 };
 
-const worldspeed = 2
+const worldspeed = 1
 const mouseStrength = 1
 const mouseRange = emToPixels(document.body, 5)
 const defaultLineWidth = emToPixels(document.body, 0.2)
@@ -65,7 +65,7 @@ class Point {
 	simulateJoints(dt) {
 		var currDiffFromParent = this.pos.clone().subtract(this.parent.pos)
 		var variation = currDiffFromParent.clone().subtract(this.boundDiffFromParent)
-		var effectStrength = (this.strength * worldspeed * dt) / 2
+		var effectStrength = (this.strength * dt) * 4
 		variation.x = variation.x * effectStrength
 		variation.y = variation.y * effectStrength
 		this.pos = this.pos.subtract(variation)
@@ -125,12 +125,15 @@ class Point {
 	}
 }
 
-function parsePointJson(jsonData, context, startingPos, pointSize, lineWidth, color) {
+function parsePointJson(jsonData, context, startingPos, scale, rotation, pointSize, lineWidth, color) {
 	var startingPoint
 	const pointCount = Object.keys(jsonData).length
 	var previousPoint
 	for (const index in jsonData) {
-		var pointPos = new Vec(jsonData[index].x, jsonData[index].y).add(startingPos)
+		var pointPos = new Vec(jsonData[index].x, jsonData[index].y)
+		pointPos.x = pointPos.x * scale
+		pointPos.y = pointPos.y * scale
+		pointPos.add(startingPos)
 		newPoint = new Point(context, pointPos, pointSize, lineWidth, color)
 		if (previousPoint == null) {
 			startingPoint = newPoint
@@ -146,13 +149,13 @@ function parsePointJson(jsonData, context, startingPos, pointSize, lineWidth, co
 	trackedObjects.push(startingPoint)
 }
 
-function loadPointJson(jsonPath, context, startingPos, pointSize, lineWidth, color) {
+function loadPointJson(jsonPath, context, startingPos, scale, rotation, pointSize, lineWidth, color) {
 	fetch(jsonPath)
 		.then(function(response) {
 			return response.json();
 		})
 		.then(function(data) {
-			parsePointJson(data, context, startingPos, pointSize, lineWidth, color)
+			parsePointJson(data, context, startingPos, scale, rotation, pointSize, lineWidth, color)
 		})
 		.catch(function(err) {
 			console.log('error: ' + err);
@@ -169,10 +172,10 @@ feather.classList.add("feather")
 var ctx = feather.getContext("2d")
 
 
-loadPointJson("./assets/square.json", ctx, new Vec(100, 100), pointSize, defaultLineWidth + 1, "#FFFFFF")
-loadPointJson("./assets/octagon.json", ctx, new Vec(500, 100), pointSize, defaultLineWidth + 1, "#FFFFFF")
-loadPointJson("./assets/circle.json", ctx, new Vec(200, 500), pointSize, defaultLineWidth + 1, "#FFFFFF")
-
+//loadPointJson("./assets/square.json", ctx, new Vec(100, 100), 1,0, pointSize, defaultLineWidth + 1, "#FFFFFF")
+//loadPointJson("./assets/octagon.json", ctx, new Vec(500, 100), 1,0, pointSize, defaultLineWidth + 1, "#FFFFFF")
+//loadPointJson("./assets/circle.json", ctx, new Vec(200, 500), 1,0, pointSize, defaultLineWidth + 1, "#FFFFFF")
+loadPointJson("./assets/feather.json", ctx, new Vec(200, 200), 4, 0, pointSize, defaultLineWidth + 1, "#FFFFFF")
 
 drawCanvas = function() {
 
@@ -189,8 +192,8 @@ function doFrame(ms) {
 	if (elapsed == null) {
 		elapsed = 0
 	}
-	dt = time - elapsed
-	dt = Math.min(dt, 1)
+	dt = (time - elapsed) * worldspeed
+	dt = Math.min(dt, 0.1)
 	var dt_display = document.getElementById("dt-display");
 	if (dt_display)
 		dt_display.textContent = "Delte time: " + dt;
