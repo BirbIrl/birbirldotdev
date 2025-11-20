@@ -1,6 +1,9 @@
 /** @type {import('./victor.js')} */ //curse you, lsp's
 const Vec = Victor
 
+//TODO: garbage collect feathers
+//TODO: take dpi into account
+
 function emToPixels(element, em) {
 	const elementFontSize = parseFloat(getComputedStyle(element).fontSize);
 	return em * elementFontSize;
@@ -274,6 +277,8 @@ function spawnFeather() {
 }
 
 
+feather.width = window.innerWidth;
+feather.height = window.innerHeight;
 
 drawCanvas = function() {
 
@@ -285,14 +290,18 @@ drawCanvas = function() {
 }
 
 var featherSpawnTime
+var featherDensity = 0.005
 function setFeatherSpawnTime() {
-	featherSpawnTime = emToPixels(document.body, gravity * ((window.innerHeight / window.innerWidth) + 1)) / 30
-} // i have become god of jank, destroyer of sense
+	featherSpawnTime = (100 / feather.height) / featherDensity;
+	if (feather.width > feather.height) {
+		featherSpawnTime /= 2 // this sucks 
+	}
+}
 setFeatherSpawnTime()
+console.log(featherSpawnTime)
 var elapsed
 var onScreenTime = 0
 var lastSpawnTime = 0
-console.log(featherSpawnTime)
 function doFrame(ms) {
 	time = ms / 1000
 	if (elapsed == null) {
@@ -360,11 +369,8 @@ window.onresize = function() {
 
 document.body.appendChild(feather)
 
+console.log(feather.height / gravity)
+//for (let i = 1; i < feather.height / gravity; i++) {
 for (let i = 1; i < 10; i++) {
 	spawnFeather().simulateJustGravity(featherSpawnTime * i)
 }
-//setTimeout(spawnFeather, 1000);
-//setTimeout(spawnFeather, 1000);
-//setTimeout(spawnFeather, 5000);
-//spawnFeather()
-//spawnFeather()
