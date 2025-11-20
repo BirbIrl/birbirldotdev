@@ -20,7 +20,7 @@ function clamp(min, target, max) {
 };
 
 const worldspeed = 1
-const gravity = 20
+const gravity = 10
 const mouseStrength = 1
 const mouseRange = emToPixels(document.body, 5)
 const defaultLineWidth = emToPixels(document.body, 0.2)
@@ -271,7 +271,7 @@ function spawnFeather() {
 	var margin = width * 1 / 20
 	var third = (width - (2 * margin)) / 3
 	var x = (Math.random() * third) + (third * (featherLastPosThird)) + margin
-	var point = parsePointJson(getFeatherData(), ctx, new Vec(x, 0), featherScale, Math.random() * 360, pointSize, defaultLineWidth, "#FFFFFF", 0.5)
+	var point = parsePointJson(getFeatherData(), ctx, new Vec(x, 0), featherScale, Math.random() * 360, pointSize, defaultLineWidth, "#FFFFFF", 1)
 	point.moveAll(new Vec(0, point.getLowestPoint() * 1.2)) // don't look at this too much, i'm too lazy to remove my recvursive algorithm, so i'm just stealing ur cpu
 	return point
 }
@@ -322,7 +322,10 @@ function doFrame(ms) {
 
 	for (const point of trackedObjects) {
 		point.simulate(dt)
+		console.log(point.pos.y)
 	}
+	trackedObjects = trackedObjects.filter(point => point.pos.y <= feather.height + 100 * featherScale);
+	// aa what am i even doing
 	drawCanvas()
 
 	requestAnimationFrame(doFrame)
@@ -369,8 +372,13 @@ window.onresize = function() {
 
 document.body.appendChild(feather)
 
-console.log(feather.height / gravity)
-//for (let i = 1; i < feather.height / gravity; i++) {
-for (let i = 1; i < 10; i++) {
-	spawnFeather().simulateJustGravity(featherSpawnTime * i)
+let i = 1;
+
+while (true) {
+	let timeoffset = featherSpawnTime * i;
+	spawnFeather().simulateJustGravity(timeoffset);
+	if (timeoffset > feather.height / gravity) {
+		break;
+	}
+	i++;
 }
