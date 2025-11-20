@@ -290,7 +290,7 @@ drawCanvas = function() {
 }
 
 var featherSpawnTime
-var featherDensity = 0.005
+var featherDensity = 0.0030
 function setFeatherSpawnTime() {
 	featherSpawnTime = (100 / feather.height) / featherDensity;
 	if (feather.width > feather.height) {
