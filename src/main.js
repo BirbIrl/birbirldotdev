@@ -271,7 +271,7 @@ function spawnFeather() {
 	var margin = width * 1 / 20
 	var third = (width - (2 * margin)) / 3
 	var x = (Math.random() * third) + (third * (featherLastPosThird)) + margin
-	var point = parsePointJson(getFeatherData(), ctx, new Vec(x, 0), featherScale, Math.random() * 360, pointSize, defaultLineWidth, "#FFFFFF", 1)
+	var point = parsePointJson(getFeatherData(), ctx, new Vec(x, 0), (Math.random() * 0.25 + 0.875) * featherScale, Math.random() * 360, pointSize, defaultLineWidth, "#FFFFFF", (Math.random() * 0.5) + 0.75)
 	point.moveAll(new Vec(0, point.getLowestPoint() * 1.2)) // don't look at this too much, i'm too lazy to remove my recvursive algorithm, so i'm just stealing ur cpu
 	return point
 }
