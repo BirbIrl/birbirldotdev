@@ -3,17 +3,29 @@
 	src: url(assets/Monaspace\ Neon\ Var.woff2) format("truetype");
 }
 
+
 :root {
+	/*Birb-Palette™*/
 	--c-main: #F8B74E;
+	--c-main-rgb: 248, 183, 78;
 	--c-main2: #4E8EF8;
+	--c-main2-rgb: 78, 142, 248;
 	--c-accent: #A4C857;
+	--c-accent-rgb: 164, 200, 87;
 	--c-accent2: #CE5A5B;
+	--c-accent2-rgb: 206, 90, 91;
 	--c-neutral: #202020;
+	--c-neutral-rgb: 32, 32, 32;
 	--c-neutralalt: #252525;
+	--c-neutralalt-rgb: 37, 37, 37;
 	--c-neutral2: #404040;
+	--c-neutral2-rgb: 64, 64, 64;
 	--c-neutral2alt: #3B3B3B;
+	--c-neutral2alt-rgb: 59, 59, 59;
 	--c-negative: #EAECEF;
+	--c-negative-rgb: 234, 236, 239;
 }
+
 
 @keyframes activeBorderAnim {
 	to {
@@ -36,17 +48,17 @@
 
 .card {
 	font-family: Monaspice Neon;
-	background-color: #00000099;
+	background-color: #00000066;
 	backdrop-filter: blur(5px);
 	width: 33em;
-	border: 0.125em solid ghostwhite;
+	border: 0.125em solid var(--c-negative);
 	padding: 2em;
 	padding-top: 1em;
 	padding-bottom: 0.5em;
 	border-radius: 1em;
 	margin-left: auto;
 	margin-right: auto;
-	box-shadow: 0px 0px 150px 20px #000000FF;
+	box-shadow: 0px 0px 150px 20px #000000;
 }
 
 .link {
@@ -77,7 +89,7 @@
 
 		transform-origin: center;
 		transition: 0.2s ease-out;
-		stroke: rgba(#EAECEF)
+		stroke: var(--c-negative)
 	}
 }
 
@@ -92,7 +104,7 @@
 }
 
 .pfp {
-	box-shadow: 0px 0px 20px 0px #F8F8FF55;
+	box-shadow: 0px 0px 20px 0px rgba(var(--c-negative-rgb), 0.5);
 	border: double 1em transparent;
 	border-width: 0.1em;
 	border-style: solid;
@@ -130,7 +142,7 @@
 }
 
 body {
-	color: antiquewhite;
+	color: var(--c-negative);
 	display: flex;
 	justify-content: center;
 	align-items: center;
