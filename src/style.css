@@ -59,11 +59,18 @@
 	height: 2em;
 	overflow: visible;
 	opacity: 50%;
+	color: inherit;
 
 	transition: 0.2s ease-out;
 
+	svg {
+		overflow: visible;
+	}
+
+
 	path,
 	polygon {
+
 		transform-origin: center;
 		transition: 0.2s ease-out;
 		stroke: rgba(#EAECEF)
@@ -71,7 +78,6 @@
 }
 
 .socialIcon:hover {
-
 	opacity: 100%;
 
 	path,
