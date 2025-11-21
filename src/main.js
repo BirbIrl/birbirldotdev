@@ -1,7 +1,43 @@
-/** @type {import('./victor.js')} */ //curse you, lsp's
-const Vec = Victor
-
 //TODO: take dpi into account
+
+class Vec {
+	constructor(x, y) {
+		this.x = x
+		this.y = y
+	}
+	clone() {
+		return new Vec(this.x, this.y)
+	}
+	subtract(vec) {
+		this.x = this.x - vec.x
+		this.y = this.y - vec.y
+		return this
+	}
+	add(vec) {
+		this.x = this.x + vec.x
+		this.y = this.y + vec.y
+		return this
+	}
+	length() {
+		return Math.sqrt((this.x * this.x + this.y * this.y))
+	}
+	rotate(deg) {
+		deg = deg * (Math.PI / 180)
+		let xx = this.x * Math.cos(deg) - this.y * Math.sin(deg)
+		this.y = this.x * Math.sin(deg) + this.y * Math.cos(deg)
+		this.x = xx
+		return this
+	}
+	norm() {
+		let len = this.length()
+		if (len != 0) {
+			this.x = this.x / len
+			this.y = this.y / len
+		}
+		return this
+	}
+
+}
 
 function emToPixels(element, em) {
 	const elementFontSize = parseFloat(getComputedStyle(element).fontSize);
@@ -170,7 +206,7 @@ function parsePointJson(jsonData, context, startingPos, scale, rotation, pointSi
 	for (const index in jsonData) {
 		var pointPos = new Vec(jsonData[index].x, jsonData[index].y)
 		pointPos.subtract(vec50)
-		pointPos.rotate(rotation * (Math.PI / 180))
+		pointPos.rotate(rotation)
 		pointPos.x = pointPos.x * scale
 		pointPos.y = pointPos.y * scale
 		pointPos.add(startingPos)
