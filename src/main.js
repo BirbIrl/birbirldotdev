@@ -298,7 +298,6 @@ function setFeatherSpawnTime() {
 	}
 }
 setFeatherSpawnTime()
-console.log(featherSpawnTime)
 var elapsed
 var onScreenTime = 0
 var lastSpawnTime = 0
@@ -322,7 +321,6 @@ function doFrame(ms) {
 
 	for (const point of trackedObjects) {
 		point.simulate(dt)
-		console.log(point.pos.y)
 	}
 	trackedObjects = trackedObjects.filter(point => point.pos.y <= feather.height + 100 * featherScale);
 	// aa what am i even doing
