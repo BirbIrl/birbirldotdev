@@ -1,7 +1,6 @@
 /** @type {import('./victor.js')} */ //curse you, lsp's
 const Vec = Victor
 
-//TODO: garbage collect feathers
 //TODO: take dpi into account
 
 function emToPixels(element, em) {
@@ -210,22 +209,6 @@ var featherDatas = JSON.parse // woe, curse be upon ye
 [{"x": 24.549595, "y": 95.541496},{"x": 47.079958, "y": 55.369433},{"x": 66.528338, "y": 30.075909},{"x": 51.756071, "y": 45.910931},{"x": 31.457489, "y": 76.19939},{"x": 29.863359, "y": 62.277325},{"x": 33.26417, "y": 66.528338},{"x": 34.433198, "y": 56.857286},{"x": 39.446796, "y": 49.367721},{"x": 53.881578, "y": 35.602225},{"x": 65.465585, "y": 19.44838},{"x": 71.108472, "y": 17.291064},{"x": 68.027329, "y": 15.376964},{"x": 71.585531, "y": 8.1102623},{"x": 72.801711, "y": 3.800124},{"x": 77.623208, "y": 12.225916},{"x": 80.245407, "y": 21.511631},{"x": 81.088054, "y": 35.177124},{"x": 79.615714, "y": 43.052226},{"x": 74.866606, "y": 41.335235},{"x": 78.537447, "y": 47.930162},{"x": 70.247975, "y": 57.601214},{"x": 58.876517, "y": 62.596153},{"x": 68.866395, "y": 62.914979},{"x": 59.939271, "y": 72.479756},{"x": 50.693319, "y": 75.455464},{"x": 54.625504, "y": 77.474695},{"x": 48.461538, "y": 81.300605},{"x": 35.389674, "y": 80.131578},{"x": 29.650809, "y": 93.734815}]
 ]`)
 
-/*
-async function loadFeatherData() {
-	featherDatas = [
-		await loadPointJson("./assets/feather1.json"),
-		await loadPointJson("./assets/feather2.json"),
-		await loadPointJson("./assets/feather3.json"),
-		await loadPointJson("./assets/feather4.json"),
-		await loadPointJson("./assets/feather5.json"),
-		await loadPointJson("./assets/feather6.json")
-	];
-
-}
-
-*/
-
-
 
 var featherLastPosThird = Math.floor(Math.random() * 3)
 
@@ -253,16 +236,6 @@ feather.classList.add("feather")
 var ctx = feather.getContext("2d")
 
 
-//loadPointJson("./assets/square.json", ctx, new Vec(100, 100), 1,0, pointSize, defaultLineWidth + 1, "#FFFFFF")
-//loadPointJson("./assets/octagon.json", ctx, new Vec(500, 100), 1,0, pointSize, defaultLineWidth + 1, "#FFFFFF")
-//loadPointJson("./assets/circle.json", ctx, new Vec(200, 500), 1,0, pointSize, defaultLineWidth + 1, "#FFFFFF")
-//loadPointJson("./assets/feather1.json", ctx, new Vec(200, 300), 4, 0, pointSize, defaultLineWidth + 1, "#FFFFFF", 0)
-//loadPointJson("./assets/feather2.json", ctx, new Vec(1000, 0), 4, 20, pointSize, defaultLineWidth + 1, "#FFFFFF", 1)
-//loadPointJson("./assets/feather3.json", ctx, new Vec(500, 500), 4, 20, pointSize, defaultLineWidth + 1, "#FFFFFF", 0)
-//loadPointJson("./assets/feather4.json", ctx, new Vec(800, 300), 4, 20, pointSize, defaultLineWidth + 1, "#FFFFFF", 0)
-//loadPointJson("./assets/feather5.json", ctx, new Vec(1100, 500), 4, 20, pointSize, defaultLineWidth + 1, "#FFFFFF", 0)
-//loadPointJson("./assets/feather6.json", ctx, new Vec(1400, 300), 4, 20, pointSize, defaultLineWidth + 1, "#FFFFFF", 0)
-//
 function spawnFeather() {
 	if (!featherDatas[1]) {
 		return false
